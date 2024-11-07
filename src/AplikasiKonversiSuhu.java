@@ -5,6 +5,8 @@
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -192,16 +194,65 @@ public class AplikasiKonversiSuhu extends javax.swing.JFrame {
         try {
             double suhuAwal = Double.parseDouble(tfSuhuAwal.getText());
             double hasil = 0;
+            String suhuAwalUnit = cbPilihSuhu.getSelectedItem().toString();
+            String suhuAkhirUnit = "";
+
             if (radioCelcius.isSelected()) {
-                hasil = suhuAwal; // Celcius to Celcius
+                suhuAkhirUnit = "Celcius";
             } else if (radioReamur.isSelected()) {
-                hasil = (4.0 / 5.0) * suhuAwal; // Celcius to Reamur
+                suhuAkhirUnit = "Reamur";
             } else if (radioKelvin.isSelected()) {
-                hasil = suhuAwal + 273.15; // Celcius to Kelvin
+                suhuAkhirUnit = "Kelvin";
             } else if (radioFahrenheit.isSelected()) {
-                hasil = (suhuAwal * 9.0 / 5.0) + 32; // Celcius to Fahrenheit
+                suhuAkhirUnit = "Fahrenheit";
             }
-            btnHasil.setText(String.valueOf(hasil));
+
+            if (suhuAwalUnit.equals(suhuAkhirUnit)) {
+                JOptionPane.showMessageDialog(this, "Suhu yang dikonversi sama", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            switch (suhuAwalUnit) {
+                case "Celcius":
+                    if (suhuAkhirUnit.equals("Reamur")) {
+                        hasil = (4.0 / 5.0) * suhuAwal;
+                    } else if (suhuAkhirUnit.equals("Kelvin")) {
+                        hasil = suhuAwal + 273.15;
+                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
+                        hasil = (suhuAwal * 9.0 / 5.0) + 32;
+                    }
+                    break;
+                case "Reamur":
+                    if (suhuAkhirUnit.equals("Celcius")) {
+                        hasil = (5.0 / 4.0) * suhuAwal;
+                    } else if (suhuAkhirUnit.equals("Kelvin")) {
+                        hasil = (5.0 / 4.0) * suhuAwal + 273.15;
+                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
+                        hasil = (suhuAwal * 9.0 / 4.0) + 32;
+                    }
+                    break;
+                case "Kelvin":
+                    if (suhuAkhirUnit.equals("Celcius")) {
+                        hasil = suhuAwal - 273.15;
+                    } else if (suhuAkhirUnit.equals("Reamur")) {
+                        hasil = (suhuAwal - 273.15) * 4.0 / 5.0;
+                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
+                        hasil = (suhuAwal - 273.15) * 9.0 / 5.0 + 32;
+                    }
+                    break;
+                case "Fahrenheit":
+                    if (suhuAkhirUnit.equals("Celcius")) {
+                        hasil = (suhuAwal - 32) * 5.0 / 9.0;
+                    } else if (suhuAkhirUnit.equals("Reamur")) {
+                        hasil = (suhuAwal - 32) * 4.0 / 9.0;
+                    } else if (suhuAkhirUnit.equals("Kelvin")) {
+                        hasil = (suhuAwal - 32) * 5.0 / 9.0 + 273.15;
+                    }
+                    break;
+            }
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            btnHasil.setText(df.format(hasil));
         } catch (NumberFormatException e) {
             btnHasil.setText("Invalid input");
         }
