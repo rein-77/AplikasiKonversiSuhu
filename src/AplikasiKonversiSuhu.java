@@ -5,8 +5,11 @@
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import javax.swing.JOptionPane;
 import java.text.DecimalFormat;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -19,6 +22,7 @@ public class AplikasiKonversiSuhu extends javax.swing.JFrame {
      */
     public AplikasiKonversiSuhu() {
         initComponents();
+        // Menambahkan KeyListener untuk memastikan hanya angka dan titik yang bisa dimasukkan
         tfSuhuAwal.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
@@ -27,6 +31,94 @@ public class AplikasiKonversiSuhu extends javax.swing.JFrame {
                 }
             }
         });
+        // Menambahkan DocumentListener untuk konversi otomatis saat nilai input berubah
+        tfSuhuAwal.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                konversiOtomatis();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                konversiOtomatis();
+            }
+            public void changedUpdate(DocumentEvent e) {
+                konversiOtomatis();
+            }
+        });
+        // Menambahkan ActionListener untuk konversi otomatis saat suhu awal dipilih
+        cbPilihSuhu.addActionListener(e -> konversiOtomatis());
+        // Menambahkan ActionListener untuk konversi otomatis saat suhu akhir dipilih
+        radioCelcius.addActionListener(e -> konversiOtomatis());
+        radioReamur.addActionListener(e -> konversiOtomatis());
+        radioKelvin.addActionListener(e -> konversiOtomatis());
+        radioFahrenheit.addActionListener(e -> konversiOtomatis());
+    }
+
+    // Metode untuk melakukan konversi otomatis
+    private void konversiOtomatis() {
+        try {
+            double suhuAwal = Double.parseDouble(tfSuhuAwal.getText());
+            double hasil = 0;
+            String suhuAwalUnit = cbPilihSuhu.getSelectedItem().toString();
+            String suhuAkhirUnit = "";
+
+            if (radioCelcius.isSelected()) {
+                suhuAkhirUnit = "Celcius";
+            } else if (radioReamur.isSelected()) {
+                suhuAkhirUnit = "Reamur";
+            } else if (radioKelvin.isSelected()) {
+                suhuAkhirUnit = "Kelvin";
+            } else if (radioFahrenheit.isSelected()) {
+                suhuAkhirUnit = "Fahrenheit";
+            }
+
+            if (suhuAwalUnit.equals(suhuAkhirUnit)) {
+                btnHasil.setText("Suhu yang dikonversi sama");
+                return;
+            }
+
+            switch (suhuAwalUnit) {
+                case "Celcius":
+                    if (suhuAkhirUnit.equals("Reamur")) {
+                        hasil = (4.0 / 5.0) * suhuAwal;
+                    } else if (suhuAkhirUnit.equals("Kelvin")) {
+                        hasil = suhuAwal + 273.15;
+                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
+                        hasil = (suhuAwal * 9.0 / 5.0) + 32;
+                    }
+                    break;
+                case "Reamur":
+                    if (suhuAkhirUnit.equals("Celcius")) {
+                        hasil = (5.0 / 4.0) * suhuAwal;
+                    } else if (suhuAkhirUnit.equals("Kelvin")) {
+                        hasil = (5.0 / 4.0) * suhuAwal + 273.15;
+                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
+                        hasil = (suhuAwal * 9.0 / 4.0) + 32;
+                    }
+                    break;
+                case "Kelvin":
+                    if (suhuAkhirUnit.equals("Celcius")) {
+                        hasil = suhuAwal - 273.15;
+                    } else if (suhuAkhirUnit.equals("Reamur")) {
+                        hasil = (suhuAwal - 273.15) * 4.0 / 5.0;
+                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
+                        hasil = (suhuAwal - 273.15) * 9.0 / 5.0 + 32;
+                    }
+                    break;
+                case "Fahrenheit":
+                    if (suhuAkhirUnit.equals("Celcius")) {
+                        hasil = (suhuAwal - 32) * 5.0 / 9.0;
+                    } else if (suhuAkhirUnit.equals("Reamur")) {
+                        hasil = (suhuAwal - 32) * 4.0 / 9.0;
+                    } else if (suhuAkhirUnit.equals("Kelvin")) {
+                        hasil = (suhuAwal - 32) * 5.0 / 9.0 + 273.15;
+                    }
+                    break;
+            }
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            btnHasil.setText(df.format(hasil));
+        } catch (NumberFormatException e) {
+            btnHasil.setText("Invalid input");
+        }
     }
 
     /**
@@ -191,71 +283,7 @@ public class AplikasiKonversiSuhu extends javax.swing.JFrame {
     }//GEN-LAST:event_radioCelciusActionPerformed
 
     private void btnKonversiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKonversiActionPerformed
-        try {
-            double suhuAwal = Double.parseDouble(tfSuhuAwal.getText());
-            double hasil = 0;
-            String suhuAwalUnit = cbPilihSuhu.getSelectedItem().toString();
-            String suhuAkhirUnit = "";
-
-            if (radioCelcius.isSelected()) {
-                suhuAkhirUnit = "Celcius";
-            } else if (radioReamur.isSelected()) {
-                suhuAkhirUnit = "Reamur";
-            } else if (radioKelvin.isSelected()) {
-                suhuAkhirUnit = "Kelvin";
-            } else if (radioFahrenheit.isSelected()) {
-                suhuAkhirUnit = "Fahrenheit";
-            }
-
-            if (suhuAwalUnit.equals(suhuAkhirUnit)) {
-                JOptionPane.showMessageDialog(this, "Suhu yang dikonversi sama", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            switch (suhuAwalUnit) {
-                case "Celcius":
-                    if (suhuAkhirUnit.equals("Reamur")) {
-                        hasil = (4.0 / 5.0) * suhuAwal;
-                    } else if (suhuAkhirUnit.equals("Kelvin")) {
-                        hasil = suhuAwal + 273.15;
-                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
-                        hasil = (suhuAwal * 9.0 / 5.0) + 32;
-                    }
-                    break;
-                case "Reamur":
-                    if (suhuAkhirUnit.equals("Celcius")) {
-                        hasil = (5.0 / 4.0) * suhuAwal;
-                    } else if (suhuAkhirUnit.equals("Kelvin")) {
-                        hasil = (5.0 / 4.0) * suhuAwal + 273.15;
-                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
-                        hasil = (suhuAwal * 9.0 / 4.0) + 32;
-                    }
-                    break;
-                case "Kelvin":
-                    if (suhuAkhirUnit.equals("Celcius")) {
-                        hasil = suhuAwal - 273.15;
-                    } else if (suhuAkhirUnit.equals("Reamur")) {
-                        hasil = (suhuAwal - 273.15) * 4.0 / 5.0;
-                    } else if (suhuAkhirUnit.equals("Fahrenheit")) {
-                        hasil = (suhuAwal - 273.15) * 9.0 / 5.0 + 32;
-                    }
-                    break;
-                case "Fahrenheit":
-                    if (suhuAkhirUnit.equals("Celcius")) {
-                        hasil = (suhuAwal - 32) * 5.0 / 9.0;
-                    } else if (suhuAkhirUnit.equals("Reamur")) {
-                        hasil = (suhuAwal - 32) * 4.0 / 9.0;
-                    } else if (suhuAkhirUnit.equals("Kelvin")) {
-                        hasil = (suhuAwal - 32) * 5.0 / 9.0 + 273.15;
-                    }
-                    break;
-            }
-
-            DecimalFormat df = new DecimalFormat("#.##");
-            btnHasil.setText(df.format(hasil));
-        } catch (NumberFormatException e) {
-            btnHasil.setText("Invalid input");
-        }
+        konversiOtomatis();
     }//GEN-LAST:event_btnKonversiActionPerformed
 
     /**
